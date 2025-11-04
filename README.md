@@ -67,3 +67,5 @@ O fato de a aplicação estar rodando no Kubernetes é uma vantagem técnica que
 - Conclusão: O usuário final vê o site atualizado (com o novo texto de boas-vindas) sem ter notado qualquer interrupção ou lentidão.
 
 ## Diagrama
+
+<img width="1417" height="581" alt="Image" src="https://github.com/user-attachments/assets/a26880b3-83ac-4b82-9558-280c49d6b47a" />
