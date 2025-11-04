@@ -1,0 +1,111 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+  name: school-app 
+  labels: 
+    apps: school-app 
+  namespace: webserver 
+spec: 
+  replicas: 4 
+  strategy: 
+    type: RollingUpdate 
+    rollingUpdate: 
+      maxSurge: 50%
+      maxUnavailable: 50% 
+  revisionHistoryLimit: 3 
+  selector: 
+    matchLabels: 
+      apps: school-app 
+  template: 
+    metadata: 
+      labels: 
+        apps: school-app 
+    spec: 
+      hostname: nodeserver 
+      terminationGracePeriodSeconds: 15 
+      dnsConfig:
+        nameservers: 
+          - 192.168.124.1
+        options: 
+          - name: ndots 
+            value: '1'
+      hostAliases: 
+        - ip: '192.168.124.23'
+          hostnames: 
+            - 'mysqlsrv.mydomain.com.br'
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms: 
+              - matchExpressions: 
+                - key: RKENODE
+                  operator: In 
+                  values: 
+                    - node01 
+                    - node02 
+      containers: 
+        - image: 'matheustux/nodejs-school:1.0'
+          name: nodejs-alpine 
+          resources: 
+            limits: 
+              cpu: '0.1'
+              memory: '256Mi'
+          ports: 
+            - name: node-port 
+              containerPort: 3000
+            #- name: node-external 
+            #  hostPort: 3000
+          resizePolicy: 
+            - resourceName: cpu 
+              restartPolicy: RestartContainer 
+            - resourceName: memory 
+              restartPolicy: RestartContainer
+          workingDir: /app
+          securityContext:
+            runAsNonRoot: false 
+            allowPrivilegeEscalation: false 
+          lifecycle: 
+            postStart:
+              exec: 
+                command:
+                  - /bin/sh 
+                  - -c 
+                  - |
+                    nc -vz $LGN 9502
+          env:
+            - name: TZ 
+              value: 'America/Sao_Paulo'
+            - name: LGN 
+              value: 'longhorn-admission-webhook.longhorn-system.svc.cluster.local'
+          volumeMounts: 
+            - name: log-data  
+              mountPath: /home/admin
+          livenessProbe: 
+            httpGet: 
+              port: 3000
+              path: /
+            initialDelaySeconds: 60 
+            periodSeconds: 120 
+            timeoutSeconds: 3 
+            failureThreshold: 3 
+            successThreshold: 1
+
+      volumes:
+        - name: log-data
+          persistentVolumeClaim: 
+            claimName: pvc-school
+---
+apiVersion: v1 
+kind: Service 
+metadata:
+  name: school-svc 
+  namespace: webserver 
+spec:
+  type: ClusterIP 
+  selector:
+    apps: school-app
+  ports:
+    - name: node-port 
+      port: 3000
+      targetPort: 3000 
+      protocol: TCP

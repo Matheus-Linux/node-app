@@ -1,0 +1,78 @@
+variables:
+  DOCKER_IMAGE: "node:25-alpine3.22"
+  IMAGE: "matheustux/nodejs-school:$CI_COMMIT_SHORT_SHA"
+
+
+stages:
+  - test 
+  - build 
+  - dbconn 
+  - deploy 
+
+teste_application: 
+  stage: test 
+  tags: 
+    - image-test
+  image: $DOCKER_IMAGE
+  before_script:
+    - |
+      cd escola-site/ 
+      set -x apk add curl \
+        &&  npm install 
+  script:
+    - node --check app.js
+  after_script:
+    - node --check app.js > /var/log/app.log
+  artifacts:
+    paths:
+      - /var/log/app.log 
+    expire_in: 10 minutes
+
+build_nodeapp:
+  stage: build 
+  tags:
+    - docker-ci 
+  needs: 
+    - teste_application
+  before_script:
+    - docker login -u $DOCKER_USER -p $DOCKER_PASSWD 
+  script:
+    - docker build -t $IMAGE .
+    - docker image push $IMAGE 
+  after_script: 
+    - docker rmi $IMAGE 
+
+
+database_connection: 
+  stage: dbconn
+  tags:
+    - image-test
+  image: alpine:3.22 
+  needs:
+    - build_nodeapp
+  before_script:
+    - apk update 
+    - apk add netcat-openbsd
+  script:
+    - nc -vz 192.168.124.23 3306
+
+deploy_application: 
+  stage: deploy 
+  tags:
+    - image-test
+  image: matheustux/kubectl:1.0
+  needs:
+    - database_connection 
+  before_script: 
+    - cat $CONFIG > /config
+    - export KUBECONFIG=/config
+  script: 
+    - | 
+      if kubectl get nodes &>- ; then 
+        : 
+      else 
+        echo "Usuário não permitido!"
+      fi 
+
+      sed -i "s|'matheustux/nodejs-school:.*|\'matheustux/nodejs-school:$CI_COMMIT_SHORT_SHA\'|" manifests/school-server.yaml 
+      kubectl apply -k manifests/
