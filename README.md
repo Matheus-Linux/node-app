@@ -1,93 +1,69 @@
-# home-school
+# 🚀 O que Faz a Nossa Aplicação "node-app"? Esta é uma aplicação web simples, desenvolvida em Node.js, que funciona como o site institucional e informativo da Escola Aurora.
 
+## 1. 🏡 Página Inicial (Boas-Vindas)
+- Funcionalidade: Quando um usuário acessa o site, ele é recebido na página principal.
 
+- Conteúdo: Exibe o banner da escola e uma mensagem de boas-vindas que reforça o compromisso da instituição em formar "cidadãos críticos, criativos e prontos para um futuro melhor para o Brasil."
 
-## Getting started
+## 2. 🗓️ Listagem de Atividades
+- Funcionalidade: Existe uma seção dedicada a informar a comunidade sobre os próximos eventos e projetos da escola.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- Conteúdo: Mostra uma lista de atividades importantes, como a "Feira de Ciências", o "Campeonato de Matemática" e a "Semana da Leitura", incluindo a data prevista para cada uma.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 3. 🖥️ Como a Aplicação Funciona por Trás dos Panos
+Apesar de ser simples, o site foi construído com ferramentas modernas para garantir um bom desempenho:
 
-## Add your files
+- Ele usa a linguagem Node.js para rodar no servidor e a tecnologia EJS para montar as páginas HTML que você vê.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+- É um site "de leitura" no momento: as informações de atividades estão inseridas diretamente no código.
 
-```
-cd existing_repo
-git remote add origin http://gitlab.mydomain.com.br/mydomain/home-school.git
-git branch -M main
-git push -uf origin main
-```
+# 🛡️ Benefício de Estar no Kubernetes
+O fato de a aplicação estar rodando no Kubernetes é uma vantagem técnica que se traduz em um melhor serviço para o usuário:
 
-## Integrate with your tools
+- Sempre no Ar (Confiabilidade): O Kubernetes garante que, se uma parte do servidor que está exibindo o site falhar, outra parte assume imediatamente. Isso significa que o site da Escola Aurora estará disponível 24 horas por dia, minimizando interrupções.
 
-- [ ] [Set up project integrations](http://gitlab.mydomain.com.br/mydomain/home-school/-/settings/integrations)
+- Suporta alta demanda (Escalabilidade): Se, de repente, muitos pais e alunos acessarem o site ao mesmo tempo (por exemplo, na véspera da Feira de Ciências), o Kubernetes consegue automaticamente aumentar a capacidade do site para lidar com o pico de tráfego, evitando lentidão ou erros.
 
-## Collaborate with your team
+# 🔁 O Fluxo de Vida da Aplicação no CI/CD
+- O CI/CD é como uma linha de montagem automatizada para o seu código. Ele garante que qualquer mudança na aplicação seja testada e colocada no ar de forma rápida e segura.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+- Baseado no diagrama (GitLab, Docker Image, Kustomization e Kubernetes), o processo funciona em 5 etapas principais:
 
-## Test and Deploy
+## 1. ✍️ Integração Contínua (CI): Onde Tudo Começa
+- Ação do Desenvolvedor: Você (ou um desenvolvedor) faz uma alteração no código Node.js (por exemplo, muda o texto de boas-vindas do site) e envia (Commit/Push) essa mudança para o repositório GitLab.
 
-Use the built-in continuous integration in GitLab.
+- Ação do GitLab CI/CD: O GitLab detecta a nova mudança e inicia automaticamente o pipeline de Integração Contínua.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+- Teste: O código é verificado para garantir que não há erros graves.
 
-***
+- Build (Construção): Usando o Dockerfile do seu projeto, o GitLab empacota a sua aplicação Node.js junto com tudo o que ela precisa para rodar (como o Node.js e suas dependências). O resultado é uma Docker Image (o "pacote" final da aplicação).
 
-# Editing this README
+## 2. 📦 Registro (DockerHub ou Registry)
+- Ação do CI/CD: A imagem Docker recém-construída é enviada (ou pushed) para um local de armazenamento central, como o DockerHub ou o Container Registry do próprio GitLab.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+- Resultado: Agora existe um novo "pacote" da sua aplicação (por exemplo, node-app:v2.0) pronto para ser implantado.
 
-## Suggestions for a good README
+## 3. 🚀 Entrega Contínua (CD): A Ponte para o Kubernetes
+- Ação do CI/CD: O pipeline agora entra na fase de Entrega Contínua. Ele pega o arquivo Kustomization.yaml (que contém as instruções sobre como o site deve rodar no Kubernetes).
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+- Instrução Chave: O arquivo YAML é atualizado com o nome da nova imagem Docker (node-app:v2.0) que foi gerada na etapa 1.
 
-## Name
-Choose a self-explaining name for your project.
+## 4. 🌐 Implantação no Kubernetes
+- Ação do CD: O pipeline se conecta ao seu cluster Kubernetes (composto pelos master-node e worker-nodes) e diz: "Aplique estas novas instruções!"
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+- Ação do Kubernetes:
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+- O Kubernetes lê o novo YAML.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- Ele baixa a nova imagem (node-app:v2.0) do repositório (DockerHub).
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+- Ele cria novos Pods rodando a versão atualizada da sua aplicação.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## 5. 🔄 Rolling Update (Atualização Sem Interrupção)
+- Ação do Kubernetes: A mágica acontece aqui! O Kubernetes não derruba o site antigo para colocar o novo no lugar.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+- Resultado para o Usuário: Ele faz uma Atualização Contínua (Rolling Update): os Pods antigos continuam funcionando e recebendo tráfego enquanto os novos Pods da versão v2.0 são inicializados. Somente quando os novos Pods estiverem 100% prontos, o tráfego é roteado para eles, e os Pods antigos são desligados.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+- Conclusão: O usuário final vê o site atualizado (com o novo texto de boas-vindas) sem ter notado qualquer interrupção ou lentidão.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Diagrama
